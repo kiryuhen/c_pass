@@ -1,0 +1,234 @@
+<UserControl x:Class="PasswordManager.Views.GeneratorPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PasswordManager.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Заголовок -->
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Генератор паролей" 
+                       Style="{StaticResource HeaderTextStyle}"/>
+            <TextBlock Text="Создайте надежный пароль с нужными параметрами" 
+                       Style="{StaticResource NormalTextStyle}"
+                       Opacity="0.8"/>
+            <Separator Margin="0,15" Background="#444444"/>
+        </StackPanel>
+        
+        <!-- Результат генерации пароля -->
+        <Border Grid.Row="1" 
+                Background="#2D2D2D" 
+                CornerRadius="12" 
+                Padding="25" 
+                Margin="0,10">
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="3" Direction="270" 
+                                  Color="Black" Opacity="0.3" 
+                                  BlurRadius="8"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Сгенерированный пароль -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Border CornerRadius="8" Background="#333333" Padding="2" Margin="0,0,5,0">
+                        <TextBox Grid.Column="0"
+                                Text="{Binding GeneratedPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                Style="{StaticResource FluentTextBoxStyle}"
+                                FontFamily="Consolas"
+                                FontSize="18"
+                                FontWeight="Medium"
+                                IsReadOnly="True"/>
+                    </Border>
+                    
+                    <Button Grid.Column="1"
+                            Content="Копировать"
+                            Style="{StaticResource FluentButtonStyle}"
+                            Command="{Binding CopyPasswordCommand}"/>
+                </Grid>
+                
+                <!-- Индикатор сложности пароля -->
+                <StackPanel Grid.Row="1" Margin="0,20,0,0">
+                    <TextBlock Text="Сложность пароля:" 
+                               Style="{StaticResource NormalTextStyle}"
+                               FontWeight="Medium"/>
+                    
+                    <Grid Margin="0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border CornerRadius="5" Background="#1A1A1A" Padding="2">
+                            <Grid>
+                                <ProgressBar Value="{Binding PasswordStrength}" 
+                                             Maximum="100" 
+                                             Height="10" 
+                                             BorderThickness="0"
+                                             Background="Transparent">
+                                    <ProgressBar.Foreground>
+                                        <SolidColorBrush Color="{Binding PasswordStrengthColor}"/>
+                                    </ProgressBar.Foreground>
+                                    <ProgressBar.Template>
+                                        <ControlTemplate TargetType="ProgressBar">
+                                            <Grid>
+                                                <Border x:Name="PART_Track" 
+                                                        Background="{TemplateBinding Background}" 
+                                                        CornerRadius="5"/>
+                                                <Border x:Name="PART_Indicator" 
+                                                        Background="{TemplateBinding Foreground}" 
+                                                        CornerRadius="5"
+                                                        HorizontalAlignment="Left">
+                                                    <Border.Width>
+                                                        <MultiBinding Converter="{StaticResource ProductConverter}">
+                                                            <Binding Path="Value" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                                            <Binding Path="ActualWidth" ElementName="PART_Track"/>
+                                                            <Binding Path="Maximum" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                                        </MultiBinding>
+                                                    </Border.Width>
+                                                </Border>
+                                            </Grid>
+                                        </ControlTemplate>
+                                    </ProgressBar.Template>
+                                </ProgressBar>
+                            </Grid>
+                        </Border>
+                        
+                        <TextBlock Grid.Column="1" 
+                                   Text="{Binding PasswordStrengthText}" 
+                                   Style="{StaticResource NormalTextStyle}" 
+                                   Margin="15,0,0,0" 
+                                   FontWeight="SemiBold"/>
+                    </Grid>
+                </StackPanel>
+                
+                <!-- Кнопки действий -->
+                <StackPanel Grid.Row="2" 
+                           Orientation="Horizontal"
+                           Margin="0,15,0,0">
+                    <Button Content="Сгенерировать новый пароль" 
+                           Command="{Binding GeneratePasswordCommand}" 
+                           Style="{StaticResource FluentButtonStyle}"/>
+                    
+                    <Button Content="Высокая безопасность" 
+                           Command="{Binding ApplyHighSecurityTemplateCommand}" 
+                           Style="{StaticResource FluentButtonStyle}"/>
+                    
+                    <Button Content="Средняя безопасность" 
+                           Command="{Binding ApplyMediumSecurityTemplateCommand}" 
+                           Style="{StaticResource FluentButtonStyle}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <!-- Настройки генерации пароля -->
+        <Border Grid.Row="2" 
+               Background="#2D2D2D" 
+               CornerRadius="12" 
+               Padding="25" 
+               Margin="0,15">
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="3" Direction="270" 
+                                  Color="Black" Opacity="0.3" 
+                                  BlurRadius="8"/>
+            </Border.Effect>
+            <StackPanel>
+                <TextBlock Text="Настройки пароля" 
+                          Style="{StaticResource SubHeaderTextStyle}"/>
+                
+                <!-- Длина пароля -->
+                <Grid Margin="0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Grid.Column="0" 
+                              Text="Длина пароля:" 
+                              Style="{StaticResource NormalTextStyle}" 
+                              VerticalAlignment="Center"
+                              FontWeight="Medium"/>
+                    
+                    <Slider Grid.Column="1" 
+                           Value="{Binding PasswordOptions.Length}" 
+                           Minimum="4" 
+                           Maximum="32" 
+                           TickFrequency="1" 
+                           IsSnapToTickEnabled="True"
+                           Margin="15,0"
+                           VerticalAlignment="Center"/>
+                    
+                    <Border Grid.Column="2" 
+                            Background="{StaticResource ControlBackgroundColor}" 
+                            CornerRadius="5" 
+                            Width="45" 
+                            Height="32">
+                        <TextBlock Text="{Binding PasswordOptions.Length}" 
+                                  Style="{StaticResource NormalTextStyle}" 
+                                  TextAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  FontWeight="SemiBold"/>
+                    </Border>
+                </Grid>
+                
+                <!-- Типы символов -->
+                <UniformGrid Columns="2" Margin="0,10">
+                    <CheckBox Content="Заглавные буквы (A-Z)" 
+                             IsChecked="{Binding PasswordOptions.IncludeUppercase}"
+                             Foreground="{StaticResource ForegroundColor}"
+                             Margin="8,10"
+                             FontSize="14"/>
+                    
+                    <CheckBox Content="Строчные буквы (a-z)" 
+                             IsChecked="{Binding PasswordOptions.IncludeLowercase}"
+                             Foreground="{StaticResource ForegroundColor}"
+                             Margin="8,10"
+                             FontSize="14"/>
+                    
+                    <CheckBox Content="Цифры (0-9)" 
+                             IsChecked="{Binding PasswordOptions.IncludeNumbers}"
+                             Foreground="{StaticResource ForegroundColor}"
+                             Margin="8,10"
+                             FontSize="14"/>
+                    
+                    <CheckBox Content="Специальные символы (!@#$%^&amp;*)" 
+                             IsChecked="{Binding PasswordOptions.IncludeSpecialChars}"
+                             Foreground="{StaticResource ForegroundColor}"
+                             Margin="8,10"
+                             FontSize="14"/>
+                    
+                    <CheckBox Content="Исключить похожие символы (il1|oO0)" 
+                             IsChecked="{Binding PasswordOptions.ExcludeSimilarChars}"
+                             Foreground="{StaticResource ForegroundColor}"
+                             Margin="8,10"
+                             FontSize="14"/>
+                    
+                    <CheckBox Content="Исключить неоднозначные символы (`~;:'&quot;\)" 
+                             IsChecked="{Binding PasswordOptions.ExcludeAmbiguousChars}"
+                             Foreground="{StaticResource ForegroundColor}"
+                             Margin="8,10"
+                             FontSize="14"/>
+                </UniformGrid>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
